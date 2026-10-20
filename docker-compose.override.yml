@@ -1,0 +1,41 @@
+# Local adjustments carried over from ../zammad (the previous stack):
+#   - keep the existing bind-mounted data in ../zammad/data instead of named volumes
+#   - publish nginx on loopback only, for the host's native nginx to proxy to
+
+x-zammad-volumes: &zammad-volumes
+  volumes:
+    - ../zammad/data/zammad-backup:/var/tmp/zammad:ro
+    - ../zammad/data/zammad-storage:/opt/zammad/storage
+
+services:
+  zammad-init:
+    <<: *zammad-volumes
+  zammad-railsserver:
+    <<: *zammad-volumes
+  zammad-scheduler:
+    <<: *zammad-volumes
+  zammad-websocket:
+    <<: *zammad-volumes
+
+  zammad-nginx:
+    <<: *zammad-volumes
+    # !override, otherwise Compose appends to upstream's 0.0.0.0:8080 instead of replacing it.
+    ports: !override
+      - "127.0.0.1:10003:8080"
+
+  zammad-backup:
+    volumes:
+      - ../zammad/data/zammad-backup:/var/tmp/zammad
+      - ../zammad/data/zammad-storage:/opt/zammad/storage
+
+  zammad-postgresql:
+    volumes:
+      - ../zammad/data/postgresql:/var/lib/postgresql/data
+
+  zammad-redis:
+    volumes:
+      - ../zammad/data/redis:/data
+
+  zammad-elasticsearch:
+    volumes:
+      - ../zammad/data/elasticsearch:/usr/share/elasticsearch/data
