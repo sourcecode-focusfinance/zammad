@@ -37,5 +37,9 @@ services:
       - ./data/redis:/data
 
   zammad-elasticsearch:
+    # 9.x images are built on Red Hat UBI 9, whose glibc needs an x86-64-v2 CPU; our VM
+    #   reports a generic "Common KVM processor" without it. 8.x images are Ubuntu-based
+    #   and run fine. Only lift this once the VM's CPU type exposes x86-64-v2.
+    image: elasticsearch:${ELASTICSEARCH_VERSION:-8.19.4}
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
