@@ -1,11 +1,11 @@
-# Local adjustments carried over from ../zammad (the previous stack):
-#   - keep the existing bind-mounted data in ../zammad/data instead of named volumes
+# Local adjustments carried over from the previous hand-rolled Zammad stack:
+#   - keep the existing bind-mounted data in ./data instead of named volumes
 #   - publish nginx on loopback only, for the host's native nginx to proxy to
 
 x-zammad-volumes: &zammad-volumes
   volumes:
-    - ../zammad/data/zammad-backup:/var/tmp/zammad:ro
-    - ../zammad/data/zammad-storage:/opt/zammad/storage
+    - ./data/zammad-backup:/var/tmp/zammad:ro
+    - ./data/zammad-storage:/opt/zammad/storage
 
 services:
   zammad-init:
@@ -25,17 +25,17 @@ services:
 
   zammad-backup:
     volumes:
-      - ../zammad/data/zammad-backup:/var/tmp/zammad
-      - ../zammad/data/zammad-storage:/opt/zammad/storage
+      - ./data/zammad-backup:/var/tmp/zammad
+      - ./data/zammad-storage:/opt/zammad/storage
 
   zammad-postgresql:
     volumes:
-      - ../zammad/data/postgresql:/var/lib/postgresql/data
+      - ./data/postgresql:/var/lib/postgresql/data
 
   zammad-redis:
     volumes:
-      - ../zammad/data/redis:/data
+      - ./data/redis:/data
 
   zammad-elasticsearch:
     volumes:
-      - ../zammad/data/elasticsearch:/usr/share/elasticsearch/data
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
