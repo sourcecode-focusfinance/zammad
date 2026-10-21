@@ -19,6 +19,11 @@ services:
 
   zammad-nginx:
     <<: *zammad-volumes
+    # The host's nginx terminates TLS and proxies here over plain http. Without this, Rails
+    #   is told the request was http, drops the Secure session cookie, and every form fails
+    #   with "CSRF token verification failed".
+    environment:
+      NGINX_SERVER_SCHEME: https
     # !override, otherwise Compose appends to upstream's 0.0.0.0:8080 instead of replacing it.
     ports: !override
       - "127.0.0.1:10003:8080"
