@@ -36,6 +36,26 @@ services:
     volumes:
       - ./data/redis:/data
 
+  # Outgoing mail relay to Microsoft 365. Our Exchange inbound connector ("Tools") identifies
+  #   the sender by its TLS certificate (*.focusfinance.bi), and Zammad's SMTP client cannot
+  #   present one. Zammad sends here instead (host zammad-smtp-relay, port 587, no login, SSL
+  #   verification off), and Postfix forwards to our tenant's MX presenting the host's
+  #   Let's Encrypt certificate for support.focusfinance.bi. Not published on the host.
+  zammad-smtp-relay:
+    image: boky/postfix:5.1.0-alpine
+    restart: ${RESTART:-always}
+    environment:
+      ALLOWED_SENDER_DOMAINS: focusfinance.bi
+      RELAYHOST: "[focusfinance-bi.mail.protection.outlook.com]:25"
+      POSTFIX_myhostname: support.focusfinance.bi
+      POSTFIX_smtp_tls_security_level: encrypt
+      POSTFIX_smtp_tls_cert_file: /etc/letsencrypt/live/support.focusfinance.bi/fullchain.pem
+      POSTFIX_smtp_tls_key_file: /etc/letsencrypt/live/support.focusfinance.bi/privkey.pem
+      POSTFIX_smtp_tls_loglevel: "1"
+    volumes:
+      # The whole tree, since live/ only holds symlinks into archive/.
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+
   zammad-elasticsearch:
     # 9.x images are built on Red Hat UBI 9, whose glibc needs an x86-64-v2 CPU; our VM
     #   reports a generic "Common KVM processor" without it. 8.x images are Ubuntu-based
